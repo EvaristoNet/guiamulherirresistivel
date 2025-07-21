@@ -183,12 +183,19 @@ iframe#video {
   margin-top: 12px;
   box-shadow: 0 2px 16px #ff2e6333;
   letter-spacing: 0.5px;
-  transition: background 0.3s, transform 0.2s;
+  transition: background 0.3s, transform 0.2s, opacity 0.3s;
   animation: pulse 1.5s infinite alternate;
 }
 .final-btn.visible {
   display: block;
   animation: fadeIn 1.2s, pulse 1.5s infinite alternate;
+}
+.final-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+  pointer-events: none;
+  box-shadow: none;
 }
 @keyframes pulse {
   from { box-shadow: 0 2px 16px #ff2e6333; transform: scale(1); }

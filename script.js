@@ -63,45 +63,48 @@ function finishQuiz() {
   quizFinalEl.style.display = 'block';
   setTimeout(() => {
     videoSection.classList.add('visible');
-    // Só inicia o cronômetro quando o usuário der play no vídeo
+    finalBtn.classList.add('visible'); // Botão já aparece
+    finalBtn.disabled = true;
+    finalBtn.classList.add('disabled');
     setupVimeoPlayListener();
   }, 1200);
 }
 
 function setupVimeoPlayListener() {
   const iframe = document.getElementById('video');
-  // Garante que não adiciona múltiplos listeners
   window.removeEventListener('message', vimeoListener);
   window.vimeoPlayStarted = false;
   window.vimeoListener = function(event) {
-    // Verifica se a mensagem é do Vimeo
     if (!iframe || event.origin.indexOf('vimeo') === -1) return;
     let data = {};
     try { data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data; } catch(e){}
     if (data && data.event === 'play' && !window.vimeoPlayStarted) {
       window.vimeoPlayStarted = true;
-      startVideoTimer();
+      startUnlockTimer();
     }
   };
   window.addEventListener('message', window.vimeoListener);
-  // Solicita ao player para enviar eventos
   iframe.contentWindow.postMessage(JSON.stringify({ method: 'addEventListener', value: 'play' }), '*');
 }
 
-function startVideoTimer() {
+function startUnlockTimer() {
   let seconds = 0;
-  finalBtn.classList.remove('visible');
+  finalBtn.disabled = true;
+  finalBtn.classList.add('disabled');
   const interval = setInterval(() => {
     seconds++;
-    if (seconds >= VIDEO_MIN_TIME) {
-      finalBtn.classList.add('visible');
+    if (seconds >= 30) {
+      finalBtn.disabled = false;
+      finalBtn.classList.remove('disabled');
       clearInterval(interval);
     }
   }, 1000);
 }
 
 finalBtn.onclick = () => {
-  window.location.href = CHECKOUT_LINK;
+  if (!finalBtn.disabled) {
+    window.location.href = CHECKOUT_LINK;
+  }
 };
 
 // Inicia o quiz

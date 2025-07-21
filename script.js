@@ -72,19 +72,16 @@ function finishQuiz() {
 
 function setupVimeoPlayListener() {
   const iframe = document.getElementById('video');
-  window.removeEventListener('message', vimeoListener);
+  if (!iframe) return;
+  if (window.vimeoPlayerInstance) return; // Evita múltiplas instâncias
+  window.vimeoPlayerInstance = new Vimeo.Player(iframe);
   window.vimeoPlayStarted = false;
-  window.vimeoListener = function(event) {
-    if (!iframe || event.origin.indexOf('vimeo') === -1) return;
-    let data = {};
-    try { data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data; } catch(e){}
-    if (data && data.event === 'play' && !window.vimeoPlayStarted) {
+  window.vimeoPlayerInstance.on('play', function() {
+    if (!window.vimeoPlayStarted) {
       window.vimeoPlayStarted = true;
       startUnlockTimer();
     }
-  };
-  window.addEventListener('message', window.vimeoListener);
-  iframe.contentWindow.postMessage(JSON.stringify({ method: 'addEventListener', value: 'play' }), '*');
+  });
 }
 
 function startUnlockTimer() {
